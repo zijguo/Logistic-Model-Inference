@@ -282,7 +282,7 @@ LF_logistic<-function(X,y,loading,weight=NULL,intercept=TRUE,init.Lasso=NULL,lam
       returnList <- list("prop.est" = expo(debias.est),
                          "CI" = c(expo(CI[1]),expo(CI[2])),
                          "proj"=direction,
-                         "plug.in"=lasso.plugin,
+                         "plug.in"=expo(lasso.plugin),
                          "case"=case
       )
       return(returnList)
