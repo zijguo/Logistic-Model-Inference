@@ -6,4 +6,4 @@ Logistic Regression.”
 
 "LF_logistic" contains all the source functions.
 
-"Example_LF_logistic" gives a simulated data example to conduct statistical inference for linear functional in high dimensional logistic regression with the source file "LF_logistic".
+"Example_LF_logistic" gives a simulated data example on inference for the case probability in high dimensional logistic regression with the source file "LF_logistic".
