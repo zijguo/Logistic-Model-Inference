@@ -274,15 +274,16 @@ LF_logistic<-function(X,y,loading,weight=NULL,intercept=TRUE,init.Lasso=NULL,lam
       se<-sqrt(mean((Xc%*%direction)^2*weight^2*deriv.vec))*loading.norm/sqrt(n) 
       CI <- c(debias.est - 2*qnorm(1-alpha/2)*se, debias.est + 2*qnorm(1-alpha/2)*se)
       if(debias.est - qnorm(1-alpha)*se > 0){
-        print("The null hypothesis claiming the case probability = 0.5, is rejected")
+        case<-1
       }else{
-        print("The null hypothesis claiming the case probability = 0.5, is accepted")
+        case<-0
       }
       
       returnList <- list("prop.est" = expo(debias.est),
                          "CI" = c(expo(CI[1]),expo(CI[2])),
                          "proj"=direction,
-                         "plug.in"=lasso.plugin
+                         "plug.in"=lasso.plugin,
+                         "case"=case
       )
       return(returnList)
     }
