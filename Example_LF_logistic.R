@@ -33,11 +33,47 @@ X <- MASS::mvrnorm(n,mu,Cov)
 exp_val <- X%*%beta+a0
 prob <- exp(exp_val)/(1+exp(exp_val))
 y <- rbinom(n,1,prob)
-Est <- LF_logistic(X = X, y = y, loading = loading, intercept = TRUE, weight = NULL)
+
+##### LiVE Method #####
+Est <- LF_logistic(X = X, y = y, loading = loading)
 
 ### outputs of LF_logistic
 ### Est$prop.est: the bias-corrected estimator of the case probability
 ### Est$CI: confidence intervals for the case probability 
 ### Est$proj: the p-dim projection direction for bias correction
 ### Est$plug.in: the plug-in estimator of the case probability
-### Est$case: 1 denotes that this observation is labelled as case (case probability is above 0.5); 0 denotes control (case probability is below 0.5)
+### Est$decision: 1 denotes that this observation is labelled as case (case probability is above 0.5); 0 denotes control (case probability is below 0.5)
+
+##### Transformation Method #####
+Est_U <- Umethod(X = X, y = y, loading = loading)
+
+### outputs of Umethod
+### Est_U$prop.est: the bias-corrected estimator of the case probability using transformation method
+### Est_U$CI: confidence intervals for the case probability 
+### Est_U$proj: the p-dim projection direction for bias correction
+### Est_U$plug.in: the plug-in estimator of the case probability
+### Est_U$decision: 1 denotes that this observation is labelled as case (case probability is above 0.5); 0 denotes control (case probability is below 0.5)
+
+##### Post-Selection #####
+Est_ps <- ps(X = X, y = y, loading = loading)
+
+### outputs of ps
+### Est_ps$ps.est: the plug-in estimator of the case probability using post-selection
+### Est$ps.CI: confidence intervals for the case probability 
+### Est$ps.decision: 1 denotes that this observation is labelled as case (case probability is above 0.5); 0 denotes control (case probability is below 0.5)
+
+##### hdi #####
+Est_hdi <- deb.hdi(X = X, y = y, loading = loading)
+
+### outputs of deb.hdi
+### Est$hdi.est: the plug-in estimator of the case probability using R package hdi
+### Est$hdi.CI: confidence intervals for the case probability 
+### Est$hdi.decision: 1 denotes that this observation is labelled as case (case probability is above 0.5); 0 denotes control (case probability is below 0.5)
+
+##### WLDP #####
+Est_WLDP <- deb.WLDP(X = X, y = y, loading = loading)
+
+### outputs of deb.WLDP
+### Est$WLDP.est: the plug-in estimator of the case probability using weighted low-dimensional projection
+### Est$WLDP.CI: confidence intervals for the case probability 
+### Est$WLDP.decision: 1 denotes that this observation is labelled as case (case probability is above 0.5); 0 denotes control (case probability is below 0.5)
