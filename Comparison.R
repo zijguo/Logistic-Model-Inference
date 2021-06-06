@@ -1,3 +1,8 @@
+expo <- function(z){
+  g = exp(z)/(1+exp(z))
+  return(g)
+}
+
 ######## Post Selection Method ###################
 
 ps=function(X,y,loading)
@@ -6,10 +11,22 @@ ps=function(X,y,loading)
   var <- unique(c(which(coef(mod_1,s="lambda.min")!=0)-1))
   mod <- glm(y~X[,var[-1]],family=binomial(link='logit'))
   loading_n <- c(1,loading[var[-1]])
-  se <- sqrt(t(loading_n)%*%vcov(mod)%*%loading_n)
-  ps_est=sum(loading_n*mod$coefficients)
-  returnList<- list("ps.est"=as.vector(ps_est),"ps.se"=as.vector(se))
-}
+  se_linear <- sqrt(t(loading_n)%*%vcov(mod)%*%loading_n)
+  debias.est=sum(loading_n*mod$coefficients)
+  rho_hat <- exp(loading%*%mod$coefficients)/(1+exp(loading%*%mod$coefficients))^2
+  se <- se_linear*rho_hat
+  CI <- c(debias.est - qnorm(1-alpha/2)*se_linear, debias.est + qnorm(1-alpha/2)*se_linear)
+  if(debias.est - qnorm(1-alpha)*se_linear > 0){
+   dec <- 1
+  }else{
+   dec <- 0
+  }
+  returnList <- list("ps.est" = expo(debias.est),
+                      "ps.se" = se,
+                      "ps.CI" = c(expo(CI[1]),expo(CI[2])),
+                      "ps.decision" = dec)
+  return(returnList)
+ }
 
 ######### Plug-in Debiased using hdi ####################
 
@@ -22,10 +39,22 @@ deb.hdi=function(X,y,loading)
   
   Z <- hdi:::score.rescale(Z = fit.lasso$Z, x = X)$Z
   Cov.est <- crossprod(Z)/(nrow(X)^2) 
-  se <- sqrt(t(loading)%*%Cov.est%*%loading)
+  se_linear <- sqrt(t(loading)%*%Cov.est%*%loading)
   
-  hdi.est<-sum(loading*fit.lasso$bhat)
-  returnList<- list("hdi.est"=as.vector(hdi.est),"hdi.se"=as.vector(se))
+  debias.est<-sum(loading*fit.lasso$bhat)
+  rho_hat <- exp(loading%*%fit.lasso$bhat)/(1+exp(loading%*%fit.lasso$bhat))^2
+  se <- se_linear*rho_hat
+  CI <- c(debias.est - qnorm(1-alpha/2)*se_linear, debias.est + qnorm(1-alpha/2)*se_linear)
+  if(debias.est - qnorm(1-alpha)*se_linear > 0){
+    dec <- 1
+  }else{
+    dec <- 0
+  }
+  returnList <- list("hdi.est" = expo(debias.est),
+                     "hdi.se" = se,
+                     "hdi.CI" = c(expo(CI[1]),expo(CI[2])),
+                     "hdi.decision" = dec)
+  return(returnList)
 }
 
 ############# Plug-in Debiased using WLDP ####################
@@ -100,10 +129,22 @@ deb.WLDP=function(X,y,loading)
 {
   fit.deb.WLDP<-logistic.test(x=X,y=y)
   coef.est_WLDP<-fit.deb.WLDP$b.check
-  deb.WLDP.est=sum(loading*coef.est.WLDP)
+  debias.est=sum(loading*coef.est.WLDP)
   Cov.est.WLDP <- fit.deb.WLDP$cov
-  se.WLDP <- sqrt(t(loading)%*%Cov.est.WLDP%*%loading)
-  returnList<- list("deb.WLDP.est"=as.vector(deb.WLDP.est),"deb.WLDP.se"=as.vector(se.WLDP))
+  se_linear <- sqrt(t(loading)%*%Cov.est.WLDP%*%loading)
+  rho_hat <- exp(loading%*%coef.est.WLDP)/(1+exp(loading%*%coef.est.WLDP))^2
+  se <- se_linear*rho_hat
+  CI <- c(debias.est - qnorm(1-alpha/2)*se_linear, debias.est + qnorm(1-alpha/2)*se_linear)
+  if(debias.est - qnorm(1-alpha)*se_linear > 0){
+    dec <- 1
+  }else{
+    dec <- 0
+  }
+  returnList <- list("WLDP.est" = expo(debias.est),
+                     "WLDP.se" = se,
+                     "WLDP.CI" = c(expo(CI[1]),expo(CI[2])),
+                     "WLDP.decision" = dec)
+  return(returnList)
 }
 
 ############# Transformation Method #####################
