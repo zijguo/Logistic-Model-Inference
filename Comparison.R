@@ -13,8 +13,6 @@ ps=function(X,y,loading)
   loading_n <- c(1,loading[var[-1]])
   se_linear <- sqrt(t(loading_n)%*%vcov(mod)%*%loading_n)
   debias.est=sum(loading_n*mod$coefficients)
-  rho_hat <- exp(loading%*%mod$coefficients)/(1+exp(loading%*%mod$coefficients))^2
-  se <- se_linear*rho_hat
   CI <- c(debias.est - qnorm(1-alpha/2)*se_linear, debias.est + qnorm(1-alpha/2)*se_linear)
   if(debias.est - qnorm(1-alpha)*se_linear > 0){
    dec <- 1
@@ -22,7 +20,6 @@ ps=function(X,y,loading)
    dec <- 0
   }
   returnList <- list("ps.est" = expo(debias.est),
-                      "ps.se" = se,
                       "ps.CI" = c(expo(CI[1]),expo(CI[2])),
                       "ps.decision" = dec)
   return(returnList)
@@ -42,8 +39,6 @@ deb.hdi=function(X,y,loading)
   se_linear <- sqrt(t(loading)%*%Cov.est%*%loading)
   
   debias.est<-sum(loading*fit.lasso$bhat)
-  rho_hat <- exp(loading%*%fit.lasso$bhat)/(1+exp(loading%*%fit.lasso$bhat))^2
-  se <- se_linear*rho_hat
   CI <- c(debias.est - qnorm(1-alpha/2)*se_linear, debias.est + qnorm(1-alpha/2)*se_linear)
   if(debias.est - qnorm(1-alpha)*se_linear > 0){
     dec <- 1
@@ -51,7 +46,6 @@ deb.hdi=function(X,y,loading)
     dec <- 0
   }
   returnList <- list("hdi.est" = expo(debias.est),
-                     "hdi.se" = se,
                      "hdi.CI" = c(expo(CI[1]),expo(CI[2])),
                      "hdi.decision" = dec)
   return(returnList)
@@ -132,8 +126,6 @@ deb.WLDP=function(X,y,loading)
   debias.est=sum(loading*coef.est.WLDP)
   Cov.est.WLDP <- fit.deb.WLDP$cov
   se_linear <- sqrt(t(loading)%*%Cov.est.WLDP%*%loading)
-  rho_hat <- exp(loading%*%coef.est.WLDP)/(1+exp(loading%*%coef.est.WLDP))^2
-  se <- se_linear*rho_hat
   CI <- c(debias.est - qnorm(1-alpha/2)*se_linear, debias.est + qnorm(1-alpha/2)*se_linear)
   if(debias.est - qnorm(1-alpha)*se_linear > 0){
     dec <- 1
@@ -141,7 +133,6 @@ deb.WLDP=function(X,y,loading)
     dec <- 0
   }
   returnList <- list("WLDP.est" = expo(debias.est),
-                     "WLDP.se" = se,
                      "WLDP.CI" = c(expo(CI[1]),expo(CI[2])),
                      "WLDP.decision" = dec)
   return(returnList)
